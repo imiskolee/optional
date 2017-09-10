@@ -109,16 +109,22 @@ func (o Optional) MarshalJSON() (data []byte, err error) {
 	if o.IsPresent() {
 		return json.Marshal(o[valueKey])
 	}
-	return nil, nil
+	return []byte("null"), nil
 }
 
 // UnmarshalJSON unmarshals the JSON into a value wrapped by this optional.
 func (o *Optional) UnmarshalJSON(data []byte) error {
 	var v T
 	err := json.Unmarshal(data, &v)
+	//Try unmarshal string numbers with quote
+	if err != nil && len(data) > 2 {
+		cpy := data[1 : len(data)-2]
+		err = json.Unmarshal(cpy, &v)
+	}
 	if err != nil {
 		return err
 	}
+
 	*o = Of(v)
 	return nil
 }

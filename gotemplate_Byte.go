@@ -25,7 +25,7 @@ const (
 )
 
 func scanValueByte(input string) (val byte, err error) {
-	v, err := scanByte(input)
+	v, err := ScanByte(input)
 	return byte(v), err
 }
 
@@ -106,16 +106,22 @@ func (o Byte) MarshalJSON() (data []byte, err error) {
 	if o.IsPresent() {
 		return json.Marshal(o[valueKeyByte])
 	}
-	return nil, nil
+	return []byte("null"), nil
 }
 
 // UnmarshalJSON unmarshals the JSON into a value wrapped by this optional.
 func (o *Byte) UnmarshalJSON(data []byte) error {
 	var v byte
 	err := json.Unmarshal(data, &v)
+	//Try unmarshal string numbers with quote
+	if err != nil && len(data) > 2 {
+		cpy := data[1 : len(data)-2]
+		err = json.Unmarshal(cpy, &v)
+	}
 	if err != nil {
 		return err
 	}
+
 	*o = OfByte(v)
 	return nil
 }

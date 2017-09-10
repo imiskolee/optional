@@ -25,7 +25,7 @@ const (
 )
 
 func scanValueInt(input string) (val int, err error) {
-	v, err := scanInt(input)
+	v, err := ScanInt(input)
 	return int(v), err
 }
 
@@ -106,16 +106,22 @@ func (o Int) MarshalJSON() (data []byte, err error) {
 	if o.IsPresent() {
 		return json.Marshal(o[valueKeyInt])
 	}
-	return nil, nil
+	return []byte("null"), nil
 }
 
 // UnmarshalJSON unmarshals the JSON into a value wrapped by this optional.
 func (o *Int) UnmarshalJSON(data []byte) error {
 	var v int
 	err := json.Unmarshal(data, &v)
+	//Try unmarshal string numbers with quote
+	if err != nil && len(data) > 2 {
+		cpy := data[1 : len(data)-2]
+		err = json.Unmarshal(cpy, &v)
+	}
 	if err != nil {
 		return err
 	}
+
 	*o = OfInt(v)
 	return nil
 }
