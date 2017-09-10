@@ -10,8 +10,7 @@ import (
 
 var _ = time.Time{}
 
-// template type Optional(T)
-
+// template type Optional(T,scan)
 type T string
 
 // Optional wraps a value that may or may not be nil.
@@ -23,6 +22,15 @@ type optional []T
 const (
 	valueKey = iota
 )
+
+func scan(input string) (val T, err error) {
+	return *new(T), nil
+}
+
+func scanValue(input string) (val T, err error) {
+	v, err := scan(input)
+	return T(v), err
+}
 
 // Of wraps the value in an optional.
 func Of(value T) Optional {
@@ -78,9 +86,9 @@ func (o Optional) Else(elseValue T) (value T) {
 	return o.ElseFunc(func() T { return elseValue })
 }
 
-// ElseZero returns the value wrapped by this optional, or the zero value of
+// V returns the value wrapped by this optional, or the zero value of
 // the type wrapped if there is no value wrapped by this optional.
-func (o Optional) ElseZero() (value T) {
+func (o Optional) V() (value T) {
 	var zero T
 	return o.Else(zero)
 }
@@ -90,7 +98,7 @@ func (o Optional) ElseZero() (value T) {
 // wrapped by this optional.
 func (o Optional) String() string {
 	if o.IsPresent() {
-		return fmt.Sprintf("%v", o.ElseZero())
+		return fmt.Sprintf("%v", o.V())
 	}
 	return fmt.Sprintf("%v", nil)
 }
@@ -118,7 +126,7 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 // MarshalXML marshals the value being wrapped to XML. If there is no vale
 // being wrapped, the zero value of its type is marshaled.
 func (o Optional) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	return e.EncodeElement(o.ElseZero(), start)
+	return e.EncodeElement(o.V(), start)
 }
 
 // UnmarshalXML unmarshals the XML into a value wrapped by this optional.
@@ -133,22 +141,38 @@ func (o *Optional) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 }
 
 func (c Optional) Value() (driver.Value, error) {
-	if c.IsPresent() {
-		return json.Marshal(c[valueKey])
+	v, ok := c.Get()
+	if ok {
+		return driver.DefaultParameterConverter.ConvertValue(v)
 	}
-	return nil, nil
+	return driver.DefaultParameterConverter.ConvertValue(nil)
 }
 
 func (c *Optional) Scan(input interface{}) (err error) {
-	var val T
+	var vv string
+	var isvalid = true
 	switch value := input.(type) {
 	case string:
-		err = json.Unmarshal([]byte(value), &val)
-	case []byte:
-		if value != nil {
-			err = json.Unmarshal(value, &val)
+		if len(value) > 0 {
+			vv = value
+		} else {
+			isvalid = false
 		}
+	case []byte:
+		if value != nil && len(value) > 0 {
+			vv = string(value)
+		} else {
+			isvalid = false
+		}
+	default:
+		isvalid = false
 	}
-	*c = Of(val)
+	if isvalid {
+		val, err := scanValue(vv)
+		if err != nil {
+			return err
+		}
+		*c = Of(val)
+	}
 	return
 }

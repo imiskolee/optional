@@ -12,7 +12,7 @@ import (
 
 var _Int8 = time.Time{}
 
-// template type Optional(T)
+// template type Optional(T,scan)
 
 // Optional wraps a value that may or may not be nil.
 // If a value is present, it may be unwrapped to expose the underlying value.
@@ -23,6 +23,11 @@ type optionalInt8 []int8
 const (
 	valueKeyInt8 = iota
 )
+
+func scanValueInt8(input string) (val int8, err error) {
+	v, err := scanInt(input)
+	return int8(v), err
+}
 
 // Of wraps the value in an optional.
 func OfInt8(value int8) Int8 {
@@ -78,9 +83,9 @@ func (o Int8) Else(elseValue int8) (value int8) {
 	return o.ElseFunc(func() int8 { return elseValue })
 }
 
-// ElseZero returns the value wrapped by this optional, or the zero value of
+// V returns the value wrapped by this optional, or the zero value of
 // the type wrapped if there is no value wrapped by this optional.
-func (o Int8) ElseZero() (value int8) {
+func (o Int8) V() (value int8) {
 	var zero int8
 	return o.Else(zero)
 }
@@ -90,7 +95,7 @@ func (o Int8) ElseZero() (value int8) {
 // wrapped by this optional.
 func (o Int8) String() string {
 	if o.IsPresent() {
-		return fmt.Sprintf("%v", o.ElseZero())
+		return fmt.Sprintf("%v", o.V())
 	}
 	return fmt.Sprintf("%v", nil)
 }
@@ -118,7 +123,7 @@ func (o *Int8) UnmarshalJSON(data []byte) error {
 // MarshalXML marshals the value being wrapped to XML. If there is no vale
 // being wrapped, the zero value of its type is marshaled.
 func (o Int8) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	return e.EncodeElement(o.ElseZero(), start)
+	return e.EncodeElement(o.V(), start)
 }
 
 // UnmarshalXML unmarshals the XML into a value wrapped by this optional.
@@ -133,22 +138,38 @@ func (o *Int8) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 }
 
 func (c Int8) Value() (driver.Value, error) {
-	if c.IsPresent() {
-		return json.Marshal(c[valueKeyInt8])
+	v, ok := c.Get()
+	if ok {
+		return driver.DefaultParameterConverter.ConvertValue(v)
 	}
-	return nil, nil
+	return driver.DefaultParameterConverter.ConvertValue(nil)
 }
 
 func (c *Int8) Scan(input interface{}) (err error) {
-	var val int8
+	var vv string
+	var isvalid = true
 	switch value := input.(type) {
 	case string:
-		err = json.Unmarshal([]byte(value), &val)
-	case []byte:
-		if value != nil {
-			err = json.Unmarshal(value, &val)
+		if len(value) > 0 {
+			vv = value
+		} else {
+			isvalid = false
 		}
+	case []byte:
+		if value != nil && len(value) > 0 {
+			vv = string(value)
+		} else {
+			isvalid = false
+		}
+	default:
+		isvalid = false
 	}
-	*c = OfInt8(val)
+	if isvalid {
+		val, err := scanValueInt8(vv)
+		if err != nil {
+			return err
+		}
+		*c = OfInt8(val)
+	}
 	return
 }

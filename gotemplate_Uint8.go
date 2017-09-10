@@ -12,7 +12,7 @@ import (
 
 var _Uint8 = time.Time{}
 
-// template type Optional(T)
+// template type Optional(T,scan)
 
 // Optional wraps a value that may or may not be nil.
 // If a value is present, it may be unwrapped to expose the underlying value.
@@ -23,6 +23,11 @@ type optionalUint8 []uint8
 const (
 	valueKeyUint8 = iota
 )
+
+func scanValueUint8(input string) (val uint8, err error) {
+	v, err := scanUint(input)
+	return uint8(v), err
+}
 
 // Of wraps the value in an optional.
 func OfUint8(value uint8) Uint8 {
@@ -78,9 +83,9 @@ func (o Uint8) Else(elseValue uint8) (value uint8) {
 	return o.ElseFunc(func() uint8 { return elseValue })
 }
 
-// ElseZero returns the value wrapped by this optional, or the zero value of
+// V returns the value wrapped by this optional, or the zero value of
 // the type wrapped if there is no value wrapped by this optional.
-func (o Uint8) ElseZero() (value uint8) {
+func (o Uint8) V() (value uint8) {
 	var zero uint8
 	return o.Else(zero)
 }
@@ -90,7 +95,7 @@ func (o Uint8) ElseZero() (value uint8) {
 // wrapped by this optional.
 func (o Uint8) String() string {
 	if o.IsPresent() {
-		return fmt.Sprintf("%v", o.ElseZero())
+		return fmt.Sprintf("%v", o.V())
 	}
 	return fmt.Sprintf("%v", nil)
 }
@@ -118,7 +123,7 @@ func (o *Uint8) UnmarshalJSON(data []byte) error {
 // MarshalXML marshals the value being wrapped to XML. If there is no vale
 // being wrapped, the zero value of its type is marshaled.
 func (o Uint8) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	return e.EncodeElement(o.ElseZero(), start)
+	return e.EncodeElement(o.V(), start)
 }
 
 // UnmarshalXML unmarshals the XML into a value wrapped by this optional.
@@ -133,22 +138,38 @@ func (o *Uint8) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 }
 
 func (c Uint8) Value() (driver.Value, error) {
-	if c.IsPresent() {
-		return json.Marshal(c[valueKeyUint8])
+	v, ok := c.Get()
+	if ok {
+		return driver.DefaultParameterConverter.ConvertValue(v)
 	}
-	return nil, nil
+	return driver.DefaultParameterConverter.ConvertValue(nil)
 }
 
 func (c *Uint8) Scan(input interface{}) (err error) {
-	var val uint8
+	var vv string
+	var isvalid = true
 	switch value := input.(type) {
 	case string:
-		err = json.Unmarshal([]byte(value), &val)
-	case []byte:
-		if value != nil {
-			err = json.Unmarshal(value, &val)
+		if len(value) > 0 {
+			vv = value
+		} else {
+			isvalid = false
 		}
+	case []byte:
+		if value != nil && len(value) > 0 {
+			vv = string(value)
+		} else {
+			isvalid = false
+		}
+	default:
+		isvalid = false
 	}
-	*c = OfUint8(val)
+	if isvalid {
+		val, err := scanValueUint8(vv)
+		if err != nil {
+			return err
+		}
+		*c = OfUint8(val)
+	}
 	return
 }
