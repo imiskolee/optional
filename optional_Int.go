@@ -7,49 +7,51 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/imiskolee/optional/optional_scanner"
 	"time"
 )
 
-var _Float32 = time.Time{}
+var _Int = time.Time{}
+var __Int = optional_scanner.ScanBool
 
 // template type Optional(T,scan)
 
 // Optional wraps a value that may or may not be nil.
 // If a value is present, it may be unwrapped to expose the underlying value.
-type Float32 optionalFloat32
+type Int optionalInt
 
-type optionalFloat32 []float32
+type optionalInt []int
 
 const (
-	valueKeyFloat32 = iota
+	valueKeyInt = iota
 )
 
-func scanValueFloat32(input string) (val float32, err error) {
-	v, err := ScanFloat(input)
-	return float32(v), err
+func scanValueInt(input string) (val int, err error) {
+	v, err := optional_scanner.ScanInt(input)
+	return int(v), err
 }
 
 // Of wraps the value in an optional.
-func OfFloat32(value float32) Float32 {
-	return Float32{valueKeyFloat32: value}
+func OfInt(value int) Int {
+	return Int{valueKeyInt: value}
 }
 
-func OfFloat32Ptr(ptr *float32) Float32 {
+func OfIntPtr(ptr *int) Int {
 	if ptr == nil {
-		return EmptyFloat32()
+		return EmptyInt()
 	} else {
-		return OfFloat32(*ptr)
+		return OfInt(*ptr)
 	}
 }
 
 // Empty returns an empty optional.
-func EmptyFloat32() Float32 {
+func EmptyInt() Int {
 	return nil
 }
 
 // Get returns the value wrapped by this optional, and an ok signal for whether a value was wrapped.
-func (o Float32) Get() (value float32, ok bool) {
-	o.If(func(v float32) {
+func (o Int) Get() (value int, ok bool) {
+	o.If(func(v int) {
 		value = v
 		ok = true
 	})
@@ -57,20 +59,20 @@ func (o Float32) Get() (value float32, ok bool) {
 }
 
 // IsPresent returns true if there is a value wrapped by this optional.
-func (o Float32) IsPresent() bool {
+func (o Int) IsPresent() bool {
 	return o != nil
 }
 
 // If calls the function if there is a value wrapped by this optional.
-func (o Float32) If(f func(value float32)) {
+func (o Int) If(f func(value int)) {
 	if o.IsPresent() {
-		f(o[valueKeyFloat32])
+		f(o[valueKeyInt])
 	}
 }
 
-func (o Float32) ElseFunc(f func() float32) (value float32) {
+func (o Int) ElseFunc(f func() int) (value int) {
 	if o.IsPresent() {
-		o.If(func(v float32) { value = v })
+		o.If(func(v int) { value = v })
 		return
 	} else {
 		return f()
@@ -79,21 +81,21 @@ func (o Float32) ElseFunc(f func() float32) (value float32) {
 
 // Else returns the value wrapped by this optional, or the value passed in if
 // there is no value wrapped by this optional.
-func (o Float32) Else(elseValue float32) (value float32) {
-	return o.ElseFunc(func() float32 { return elseValue })
+func (o Int) Else(elseValue int) (value int) {
+	return o.ElseFunc(func() int { return elseValue })
 }
 
 // V returns the value wrapped by this optional, or the zero value of
 // the type wrapped if there is no value wrapped by this optional.
-func (o Float32) V() (value float32) {
-	var zero float32
+func (o Int) V() (value int) {
+	var zero int
 	return o.Else(zero)
 }
 
 // String returns the string representation of the wrapped value, or the string
 // representation of the zero value of the type wrapped if there is no value
 // wrapped by this optional.
-func (o Float32) String() string {
+func (o Int) String() string {
 	if o.IsPresent() {
 		return fmt.Sprintf("%v", o.V())
 	}
@@ -102,16 +104,16 @@ func (o Float32) String() string {
 
 // MarshalJSON marshals the value being wrapped to JSON. If there is no vale
 // being wrapped, the zero value of its type is marshaled.
-func (o Float32) MarshalJSON() (data []byte, err error) {
+func (o Int) MarshalJSON() (data []byte, err error) {
 	if o.IsPresent() {
-		return json.Marshal(o[valueKeyFloat32])
+		return json.Marshal(o[valueKeyInt])
 	}
 	return []byte("null"), nil
 }
 
 // UnmarshalJSON unmarshals the JSON into a value wrapped by this optional.
-func (o *Float32) UnmarshalJSON(data []byte) error {
-	var v float32
+func (o *Int) UnmarshalJSON(data []byte) error {
+	var v int
 	err := json.Unmarshal(data, &v)
 	//Try unmarshal string numbers with quote
 	if err != nil && len(data) > 2 {
@@ -122,28 +124,28 @@ func (o *Float32) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*o = OfFloat32(v)
+	*o = OfInt(v)
 	return nil
 }
 
 // MarshalXML marshals the value being wrapped to XML. If there is no vale
 // being wrapped, the zero value of its type is marshaled.
-func (o Float32) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+func (o Int) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.EncodeElement(o.V(), start)
 }
 
 // UnmarshalXML unmarshals the XML into a value wrapped by this optional.
-func (o *Float32) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var v float32
+func (o *Int) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var v int
 	err := d.DecodeElement(&v, &start)
 	if err != nil {
 		return err
 	}
-	*o = OfFloat32(v)
+	*o = OfInt(v)
 	return nil
 }
 
-func (c Float32) Value() (driver.Value, error) {
+func (c Int) Value() (driver.Value, error) {
 	v, ok := c.Get()
 	if ok {
 		return driver.DefaultParameterConverter.ConvertValue(v)
@@ -151,7 +153,7 @@ func (c Float32) Value() (driver.Value, error) {
 	return driver.DefaultParameterConverter.ConvertValue(nil)
 }
 
-func (c *Float32) Scan(input interface{}) (err error) {
+func (c *Int) Scan(input interface{}) (err error) {
 	var vv string
 	var isvalid = true
 	switch value := input.(type) {
@@ -171,11 +173,11 @@ func (c *Float32) Scan(input interface{}) (err error) {
 		isvalid = false
 	}
 	if isvalid {
-		val, err := scanValueFloat32(vv)
+		val, err := scanValueInt(vv)
 		if err != nil {
 			return err
 		}
-		*c = OfFloat32(val)
+		*c = OfInt(val)
 	}
 	return
 }

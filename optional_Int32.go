@@ -7,49 +7,51 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/imiskolee/optional/optional_scanner"
 	"time"
 )
 
-var _Byte = time.Time{}
+var _Int32 = time.Time{}
+var __Int32 = optional_scanner.ScanBool
 
 // template type Optional(T,scan)
 
 // Optional wraps a value that may or may not be nil.
 // If a value is present, it may be unwrapped to expose the underlying value.
-type Byte optionalByte
+type Int32 optionalInt32
 
-type optionalByte []byte
+type optionalInt32 []int32
 
 const (
-	valueKeyByte = iota
+	valueKeyInt32 = iota
 )
 
-func scanValueByte(input string) (val byte, err error) {
-	v, err := ScanByte(input)
-	return byte(v), err
+func scanValueInt32(input string) (val int32, err error) {
+	v, err := optional_scanner.ScanInt(input)
+	return int32(v), err
 }
 
 // Of wraps the value in an optional.
-func OfByte(value byte) Byte {
-	return Byte{valueKeyByte: value}
+func OfInt32(value int32) Int32 {
+	return Int32{valueKeyInt32: value}
 }
 
-func OfBytePtr(ptr *byte) Byte {
+func OfInt32Ptr(ptr *int32) Int32 {
 	if ptr == nil {
-		return EmptyByte()
+		return EmptyInt32()
 	} else {
-		return OfByte(*ptr)
+		return OfInt32(*ptr)
 	}
 }
 
 // Empty returns an empty optional.
-func EmptyByte() Byte {
+func EmptyInt32() Int32 {
 	return nil
 }
 
 // Get returns the value wrapped by this optional, and an ok signal for whether a value was wrapped.
-func (o Byte) Get() (value byte, ok bool) {
-	o.If(func(v byte) {
+func (o Int32) Get() (value int32, ok bool) {
+	o.If(func(v int32) {
 		value = v
 		ok = true
 	})
@@ -57,20 +59,20 @@ func (o Byte) Get() (value byte, ok bool) {
 }
 
 // IsPresent returns true if there is a value wrapped by this optional.
-func (o Byte) IsPresent() bool {
+func (o Int32) IsPresent() bool {
 	return o != nil
 }
 
 // If calls the function if there is a value wrapped by this optional.
-func (o Byte) If(f func(value byte)) {
+func (o Int32) If(f func(value int32)) {
 	if o.IsPresent() {
-		f(o[valueKeyByte])
+		f(o[valueKeyInt32])
 	}
 }
 
-func (o Byte) ElseFunc(f func() byte) (value byte) {
+func (o Int32) ElseFunc(f func() int32) (value int32) {
 	if o.IsPresent() {
-		o.If(func(v byte) { value = v })
+		o.If(func(v int32) { value = v })
 		return
 	} else {
 		return f()
@@ -79,21 +81,21 @@ func (o Byte) ElseFunc(f func() byte) (value byte) {
 
 // Else returns the value wrapped by this optional, or the value passed in if
 // there is no value wrapped by this optional.
-func (o Byte) Else(elseValue byte) (value byte) {
-	return o.ElseFunc(func() byte { return elseValue })
+func (o Int32) Else(elseValue int32) (value int32) {
+	return o.ElseFunc(func() int32 { return elseValue })
 }
 
 // V returns the value wrapped by this optional, or the zero value of
 // the type wrapped if there is no value wrapped by this optional.
-func (o Byte) V() (value byte) {
-	var zero byte
+func (o Int32) V() (value int32) {
+	var zero int32
 	return o.Else(zero)
 }
 
 // String returns the string representation of the wrapped value, or the string
 // representation of the zero value of the type wrapped if there is no value
 // wrapped by this optional.
-func (o Byte) String() string {
+func (o Int32) String() string {
 	if o.IsPresent() {
 		return fmt.Sprintf("%v", o.V())
 	}
@@ -102,16 +104,16 @@ func (o Byte) String() string {
 
 // MarshalJSON marshals the value being wrapped to JSON. If there is no vale
 // being wrapped, the zero value of its type is marshaled.
-func (o Byte) MarshalJSON() (data []byte, err error) {
+func (o Int32) MarshalJSON() (data []byte, err error) {
 	if o.IsPresent() {
-		return json.Marshal(o[valueKeyByte])
+		return json.Marshal(o[valueKeyInt32])
 	}
 	return []byte("null"), nil
 }
 
 // UnmarshalJSON unmarshals the JSON into a value wrapped by this optional.
-func (o *Byte) UnmarshalJSON(data []byte) error {
-	var v byte
+func (o *Int32) UnmarshalJSON(data []byte) error {
+	var v int32
 	err := json.Unmarshal(data, &v)
 	//Try unmarshal string numbers with quote
 	if err != nil && len(data) > 2 {
@@ -122,28 +124,28 @@ func (o *Byte) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*o = OfByte(v)
+	*o = OfInt32(v)
 	return nil
 }
 
 // MarshalXML marshals the value being wrapped to XML. If there is no vale
 // being wrapped, the zero value of its type is marshaled.
-func (o Byte) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+func (o Int32) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.EncodeElement(o.V(), start)
 }
 
 // UnmarshalXML unmarshals the XML into a value wrapped by this optional.
-func (o *Byte) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var v byte
+func (o *Int32) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var v int32
 	err := d.DecodeElement(&v, &start)
 	if err != nil {
 		return err
 	}
-	*o = OfByte(v)
+	*o = OfInt32(v)
 	return nil
 }
 
-func (c Byte) Value() (driver.Value, error) {
+func (c Int32) Value() (driver.Value, error) {
 	v, ok := c.Get()
 	if ok {
 		return driver.DefaultParameterConverter.ConvertValue(v)
@@ -151,7 +153,7 @@ func (c Byte) Value() (driver.Value, error) {
 	return driver.DefaultParameterConverter.ConvertValue(nil)
 }
 
-func (c *Byte) Scan(input interface{}) (err error) {
+func (c *Int32) Scan(input interface{}) (err error) {
 	var vv string
 	var isvalid = true
 	switch value := input.(type) {
@@ -171,11 +173,11 @@ func (c *Byte) Scan(input interface{}) (err error) {
 		isvalid = false
 	}
 	if isvalid {
-		val, err := scanValueByte(vv)
+		val, err := scanValueInt32(vv)
 		if err != nil {
 			return err
 		}
-		*c = OfByte(val)
+		*c = OfInt32(val)
 	}
 	return
 }

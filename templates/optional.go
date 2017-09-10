@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/imiskolee/optional/optional_scanner"
 	"time"
 )
 
 var _ = time.Time{}
+var __ = optional_scanner.ScanBool
 
 // template type Optional(T,scan)
 type T string
