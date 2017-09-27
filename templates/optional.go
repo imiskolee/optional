@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/imiskolee/optional/optional_scanner"
 	"time"
+
+	"github.com/imiskolee/optional/optional_scanner"
 )
 
 var _ = time.Time{}
@@ -159,22 +160,26 @@ func (c Optional) Value() (driver.Value, error) {
 func (c *Optional) Scan(input interface{}) (err error) {
 	var vv string
 	var isvalid = true
-	switch value := input.(type) {
-	case string:
-		if len(value) > 0 {
-			vv = value
-		} else {
-			isvalid = false
-		}
-	case []byte:
-		if value != nil && len(value) > 0 {
-			vv = string(value)
-		} else {
-			isvalid = false
-		}
-	default:
+
+	if input == nil {
 		isvalid = false
 	}
+
+	if isvalid {
+		switch value := input.(type) {
+		case string:
+			vv = value
+		case []byte:
+			if value != nil {
+				vv = string(value)
+			} else {
+				isvalid = false
+			}
+		default:
+			vv = fmt.Sprint(input)
+		}
+	}
+
 	if isvalid {
 		val, err := scanValue(vv)
 		if err != nil {
