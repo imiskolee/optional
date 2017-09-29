@@ -17,8 +17,7 @@ var __Uint64 = optional_scanner.ScanBool
 
 // template type Optional(T,scan)
 
-// Optional wraps a value that may or may not be nil.
-// If a value is present, it may be unwrapped to expose the underlying value.
+//swagger:type uint64
 type Uint64 optionalUint64
 
 type optionalUint64 []uint64

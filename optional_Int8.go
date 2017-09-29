@@ -17,8 +17,7 @@ var __Int8 = optional_scanner.ScanBool
 
 // template type Optional(T,scan)
 
-// Optional wraps a value that may or may not be nil.
-// If a value is present, it may be unwrapped to expose the underlying value.
+//swagger:type int8
 type Int8 optionalInt8
 
 type optionalInt8 []int8

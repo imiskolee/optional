@@ -16,8 +16,7 @@ var __ = optional_scanner.ScanBool
 // template type Optional(T,scan)
 type T string
 
-// Optional wraps a value that may or may not be nil.
-// If a value is present, it may be unwrapped to expose the underlying value.
+//swagger:type T
 type Optional optional
 
 type optional []T
