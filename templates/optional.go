@@ -126,9 +126,19 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-
 	*o = Of(v)
 	return nil
+}
+
+func (o *Optional) UnmarshalText(data []byte) error {
+	return o.Scan(string(data))
+}
+
+func (o *Optional) MarshalText() ([]byte, error) {
+	if o == nil {
+		return []byte(""), nil
+	}
+	return []byte(o.String()), nil
 }
 
 // MarshalXML marshals the value being wrapped to XML. If there is no vale
