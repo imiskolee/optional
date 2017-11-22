@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/imiskolee/optional/optional_scanner"
@@ -118,10 +119,13 @@ func (o Optional) MarshalJSON() (data []byte, err error) {
 func (o *Optional) UnmarshalJSON(data []byte) error {
 	var v T
 	err := json.Unmarshal(data, &v)
+
 	//Try unmarshal string numbers with quote
 	if err != nil && len(data) > 2 {
-		cpy := data[1 : len(data)-2]
-		err = json.Unmarshal(cpy, &v)
+		if data[0] == '"'  && data[len(data) -1] == '"'{
+			data = data[1 : len(data)-1]
+		}
+		err = json.Unmarshal(data, &v)
 	}
 	if err != nil {
 		return err
