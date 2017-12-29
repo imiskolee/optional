@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"log"
+
 	"time"
 
 	"github.com/imiskolee/optional/optional_scanner"
