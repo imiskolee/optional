@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"reflect"
 
 	"time"
 
@@ -30,6 +31,16 @@ const (
 func scanValueUint(input string) (val uint, err error) {
 	v, err := optional_scanner.ScanUint(input)
 	return uint(v), err
+}
+
+func maybeBlankUint() bool {
+	var emptyVal uint
+	switch reflect.ValueOf(emptyVal).Interface().(type) {
+	case string, []byte, bool:
+		return true
+	default:
+		return false
+	}
 }
 
 // Of wraps the value in an optional.
@@ -70,6 +81,9 @@ func (o Uint) IsPresent() bool {
 func (o Uint) IsBlank() bool {
 	if o.IsNil() {
 		return true
+	}
+	if !maybeBlankUint() {
+		return false
 	}
 	var emptyVal uint
 	if o.V() == emptyVal {
