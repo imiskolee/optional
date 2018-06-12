@@ -62,20 +62,34 @@ func (o Optional) Get() (value T, ok bool) {
 	return
 }
 
-// IsPresent returns true if there is a value wrapped by this optional.
+func (o Optional) IsNil() bool {
+	return o == nil
+}
+
 func (o Optional) IsPresent() bool {
-	return o != nil
+	return !o.IsBlank()
+}
+
+func (o Optional) IsBlank() bool {
+	if o.IsNil() {
+		return true
+	}
+	var emptyVal T
+	if o.V() == emptyVal {
+		return true
+	}
+	return false
 }
 
 // If calls the function if there is a value wrapped by this optional.
 func (o Optional) If(f func(value T)) {
-	if o.IsPresent() {
+	if !o.IsNil() {
 		f(o[valueKey])
 	}
 }
 
 func (o Optional) ElseFunc(f func() T) (value T) {
-	if o.IsPresent() {
+	if !o.IsNil() {
 		o.If(func(v T) { value = v })
 		return
 	} else {
@@ -100,7 +114,7 @@ func (o Optional) V() (value T) {
 // representation of the zero value of the type wrapped if there is no value
 // wrapped by this optional.
 func (o Optional) String() string {
-	if o.IsPresent() {
+	if !o.IsNil() {
 		return fmt.Sprintf("%v", o.V())
 	}
 	return fmt.Sprintf("%v", nil)
@@ -109,7 +123,7 @@ func (o Optional) String() string {
 // MarshalJSON marshals the value being wrapped to JSON. If there is no vale
 // being wrapped, the zero value of its type is marshaled.
 func (o Optional) MarshalJSON() (data []byte, err error) {
-	if o.IsPresent() {
+	if !o.IsNil() {
 		return json.Marshal(o[valueKey])
 	}
 	return []byte("null"), nil
@@ -126,7 +140,7 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 
 	//Try unmarshal string numbers with quote
 	if err != nil && len(data) > 2 {
-		if data[0] == '"'  && data[len(data) -1] == '"'{
+		if data[0] == '"' && data[len(data)-1] == '"' {
 			data = data[1 : len(data)-1]
 		}
 		err = json.Unmarshal(data, &v)
