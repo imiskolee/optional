@@ -204,11 +204,10 @@ func (c Optional) Value() (driver.Value, error) {
 func (c *Optional) Scan(input interface{}) (err error) {
 	var vv string
 	var isvalid = true
-
-	if input == nil {
+	if reflect.ValueOf(input).IsNil() {
 		isvalid = false
 	}
-
+	
 	if isvalid {
 		switch value := input.(type) {
 		case string:

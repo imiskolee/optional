@@ -202,8 +202,7 @@ func (c Byte) Value() (driver.Value, error) {
 func (c *Byte) Scan(input interface{}) (err error) {
 	var vv string
 	var isvalid = true
-
-	if input == nil {
+	if reflect.ValueOf(input).IsNil() {
 		isvalid = false
 	}
 
