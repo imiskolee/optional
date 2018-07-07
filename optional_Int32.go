@@ -202,8 +202,11 @@ func (c Int32) Value() (driver.Value, error) {
 func (c *Int32) Scan(input interface{}) (err error) {
 	var vv string
 	var isvalid = true
-	if reflect.ValueOf(input).IsNil() {
-		isvalid = false
+	switch reflect.ValueOf(input).Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Interface, reflect.Slice:
+		if reflect.ValueOf(input).IsNil() {
+			isvalid = false
+		}
 	}
 
 	if isvalid {
