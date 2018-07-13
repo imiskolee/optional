@@ -208,7 +208,6 @@ func (c *Byte) Scan(input interface{}) (err error) {
 			isvalid = false
 		}
 	}
-
 	if isvalid {
 		switch value := input.(type) {
 		case string:
@@ -224,6 +223,12 @@ func (c *Byte) Scan(input interface{}) (err error) {
 		}
 	}
 
+	//for empty string
+	if vv == "" {
+		var zero byte
+		*c = OfByte(zero)
+		return
+	}
 	if isvalid {
 		val, err := scanValueByte(vv)
 		if err != nil {

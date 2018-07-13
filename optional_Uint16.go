@@ -208,7 +208,6 @@ func (c *Uint16) Scan(input interface{}) (err error) {
 			isvalid = false
 		}
 	}
-
 	if isvalid {
 		switch value := input.(type) {
 		case string:
@@ -224,6 +223,12 @@ func (c *Uint16) Scan(input interface{}) (err error) {
 		}
 	}
 
+	//for empty string
+	if vv == "" {
+		var zero uint16
+		*c = OfUint16(zero)
+		return
+	}
 	if isvalid {
 		val, err := scanValueUint16(vv)
 		if err != nil {

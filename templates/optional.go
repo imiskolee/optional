@@ -210,7 +210,6 @@ func (c *Optional) Scan(input interface{}) (err error) {
 				isvalid = false
 			}
 	}
-	
 	if isvalid {
 		switch value := input.(type) {
 		case string:
@@ -226,6 +225,12 @@ func (c *Optional) Scan(input interface{}) (err error) {
 		}
 	}
 
+	//for empty string
+	if vv == "" {
+		var zero T
+		*c = Of(zero)
+		return
+	}
 	if isvalid {
 		val, err := scanValue(vv)
 		if err != nil {
