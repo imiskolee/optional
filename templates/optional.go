@@ -14,6 +14,7 @@ import (
 
 var _ = time.Time{}
 var __ = optional_scanner.ScanBool
+
 // template type Optional(T,scan)
 type T string
 
@@ -38,7 +39,7 @@ func scanValue(input string) (val T, err error) {
 func maybeBlank() bool {
 	var emptyVal T
 	switch reflect.ValueOf(emptyVal).Interface().(type) {
-	case string,[]byte,bool:
+	case string, []byte, bool:
 		return true
 	default:
 		return false
@@ -149,6 +150,11 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 	var v T
+	if string(data) == "" {
+		*o = Of(v)
+		return nil
+	}
+
 	err := json.Unmarshal(data, &v)
 
 	//Try unmarshal string numbers with quote
@@ -205,10 +211,10 @@ func (c *Optional) Scan(input interface{}) (err error) {
 	var vv string
 	var isvalid = true
 	switch reflect.ValueOf(input).Kind() {
-		case reflect.Ptr,reflect.Map,reflect.Interface,reflect.Slice:
-			if reflect.ValueOf(input).IsNil() {
-				isvalid = false
-			}
+	case reflect.Ptr, reflect.Map, reflect.Interface, reflect.Slice:
+		if reflect.ValueOf(input).IsNil() {
+			isvalid = false
+		}
 	}
 	if isvalid {
 		switch value := input.(type) {

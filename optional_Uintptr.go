@@ -147,6 +147,11 @@ func (o *Uintptr) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 	var v uintptr
+	if string(data) == "" {
+		*o = OfUintptr(v)
+		return nil
+	}
+
 	err := json.Unmarshal(data, &v)
 
 	//Try unmarshal string numbers with quote
