@@ -147,7 +147,8 @@ func (o *Int64) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 	var v int64
-	if string(data) == "" {
+	//empty string
+	if string(data) == "" || string(data) == "\"\"" || string(data) == "''" {
 		*o = OfInt64(v)
 		return nil
 	}
@@ -157,6 +158,9 @@ func (o *Int64) UnmarshalJSON(data []byte) error {
 	//Try unmarshal string numbers with quote
 	if err != nil && len(data) > 2 {
 		if data[0] == '"' && data[len(data)-1] == '"' {
+			data = data[1 : len(data)-1]
+		}
+		if data[0] == '\'' && data[len(data)-1] == '\'' {
 			data = data[1 : len(data)-1]
 		}
 		err = json.Unmarshal(data, &v)
