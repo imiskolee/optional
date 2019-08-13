@@ -168,6 +168,13 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 		}
 		err = json.Unmarshal(data, &v)
 	}
+
+	//for number to string
+	if err != nil {
+		d := fmt.Sprintf(`"%s"`,string(data))
+		err = json.Unmarshal([]byte(d), &v)
+	}
+
 	if err != nil {
 		return err
 	}
