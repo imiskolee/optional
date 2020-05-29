@@ -6,7 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"reflect"
-
+	"strconv"
 	"time"
 
 	"github.com/imiskolee/optional/optional_scanner"
@@ -156,6 +156,21 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
+	switch reflect.TypeOf(v).Kind() {
+	case reflect.Bool:
+		d,err := strconv.ParseBool(string(data))
+		if err != nil {
+			return err
+		}
+		if d {
+			data = []byte("true")
+		}else{
+			data = []byte("false")
+		}
+	}
+
+
+
 	err := json.Unmarshal(data, &v)
 
 	//Try unmarshal string numbers with quote
@@ -168,6 +183,9 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 		}
 		err = json.Unmarshal(data, &v)
 	}
+
+
+
 
 	//for number to string
 	if err != nil {

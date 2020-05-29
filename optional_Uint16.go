@@ -8,7 +8,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"reflect"
-
+	"strconv"
 	"time"
 
 	"github.com/imiskolee/optional/optional_scanner"
@@ -151,6 +151,19 @@ func (o *Uint16) UnmarshalJSON(data []byte) error {
 	if string(data) == "" || string(data) == "\"\"" || string(data) == "''" {
 		*o = OfUint16(v)
 		return nil
+	}
+
+	switch reflect.TypeOf(v).Kind() {
+	case reflect.Bool:
+		d, err := strconv.ParseBool(string(data))
+		if err != nil {
+			return err
+		}
+		if d {
+			data = []byte("true")
+		} else {
+			data = []byte("false")
+		}
 	}
 
 	err := json.Unmarshal(data, &v)
