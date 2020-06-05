@@ -164,6 +164,15 @@ func (o *String) UnmarshalJSON(data []byte) error {
 		} else {
 			data = []byte("false")
 		}
+	case reflect.Int, reflect.Int8, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		d, err := strconv.ParseBool(string(data))
+		if err == nil {
+			if d {
+				data = []byte("1")
+			} else {
+				data = []byte("0")
+			}
+		}
 	}
 
 	err := json.Unmarshal(data, &v)
