@@ -74,7 +74,7 @@ func (o Optional) Get() (value T, ok bool) {
 }
 
 func (o Optional) IsNil() bool {
-	return o == nil
+	return o == nil || len(o) == 0
 }
 
 func (o Optional) IsPresent() bool {

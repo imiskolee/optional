@@ -71,7 +71,7 @@ func (o Uint) Get() (value uint, ok bool) {
 }
 
 func (o Uint) IsNil() bool {
-	return o == nil
+	return o == nil || len(o) == 0
 }
 
 func (o Uint) IsPresent() bool {

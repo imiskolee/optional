@@ -107,3 +107,11 @@ func TestNumberToBool(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestBoolToNumber(t *testing.T) {
+	a := "true"
+	var b Int
+	if err := json.Unmarshal([]byte(a),&b) ; err != nil && b.V() != 1 {
+		t.Fatal(err)
+	}
+}

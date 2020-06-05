@@ -71,7 +71,7 @@ func (o String) Get() (value string, ok bool) {
 }
 
 func (o String) IsNil() bool {
-	return o == nil
+	return o == nil || len(o) == 0
 }
 
 func (o String) IsPresent() bool {

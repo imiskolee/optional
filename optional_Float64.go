@@ -71,7 +71,7 @@ func (o Float64) Get() (value float64, ok bool) {
 }
 
 func (o Float64) IsNil() bool {
-	return o == nil
+	return o == nil || len(o) == 0
 }
 
 func (o Float64) IsPresent() bool {

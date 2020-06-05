@@ -71,7 +71,7 @@ func (o Byte) Get() (value byte, ok bool) {
 }
 
 func (o Byte) IsNil() bool {
-	return o == nil
+	return o == nil || len(o) == 0
 }
 
 func (o Byte) IsPresent() bool {

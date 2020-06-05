@@ -71,7 +71,7 @@ func (o Int32) Get() (value int32, ok bool) {
 }
 
 func (o Int32) IsNil() bool {
-	return o == nil
+	return o == nil || len(o) == 0
 }
 
 func (o Int32) IsPresent() bool {

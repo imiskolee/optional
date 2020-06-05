@@ -71,7 +71,7 @@ func (o Uint32) Get() (value uint32, ok bool) {
 }
 
 func (o Uint32) IsNil() bool {
-	return o == nil
+	return o == nil || len(o) == 0
 }
 
 func (o Uint32) IsPresent() bool {
