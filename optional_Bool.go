@@ -155,6 +155,11 @@ func (o *Bool) UnmarshalJSON(data []byte) error {
 
 	switch reflect.TypeOf(v).Kind() {
 	case reflect.Bool:
+		if len(data) > 2 {
+			if data[0] == '"' && data[len(data)-1] == '"' {
+				data = data[1 : len(data)-1]
+			}
+		}
 		d, err := strconv.ParseBool(string(data))
 		if err != nil {
 			return err

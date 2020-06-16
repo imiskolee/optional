@@ -115,3 +115,12 @@ func TestBoolToNumber(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestCopy(t *testing.T) {
+	a := OfString("abc")
+	var b Int
+	if err := copier.Copy(&b,a); err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(b.IsNil(),b)
+}
