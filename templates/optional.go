@@ -151,7 +151,7 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 	}
 	var v T
 	//empty string
-	if string(data) == "" || string(data) == "\"\""  || string(data) == "''"{
+	if string(data) == "" || string(data) == "\"\"" || string(data) == "''" {
 		*o = Of(v)
 		return nil
 	}
@@ -163,21 +163,21 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 				data = data[1 : len(data)-1]
 			}
 		}
-		d,err := strconv.ParseBool(string(data))
+		d, err := strconv.ParseBool(string(data))
 		if err != nil {
 			return err
 		}
 		if d {
 			data = []byte("true")
-		}else{
+		} else {
 			data = []byte("false")
 		}
-	case reflect.Int,reflect.Int8,reflect.Int32,reflect.Int64,reflect.Uint,reflect.Uint8,reflect.Uint16,reflect.Uint32,reflect.Uint64:
-		d,err := strconv.ParseBool(string(data))
+	case reflect.Int, reflect.Int8, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		d, err := strconv.ParseBool(string(data))
 		if err == nil {
 			if d {
 				data = []byte("1")
-			}else{
+			} else {
 				data = []byte("0")
 			}
 		}
@@ -196,12 +196,9 @@ func (o *Optional) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(data, &v)
 	}
 
-
-
-
 	//for number to string
 	if err != nil {
-		d := fmt.Sprintf(`"%s"`,string(data))
+		d := fmt.Sprintf(`"%s"`, string(data))
 		err = json.Unmarshal([]byte(d), &v)
 	}
 
@@ -286,4 +283,23 @@ func (c *Optional) Scan(input interface{}) (err error) {
 		*c = Of(val)
 	}
 	return
+}
+
+func (c Optional) GormDataType() string {
+	var t T
+	var it interface{}
+	it = t
+	switch it.(type) {
+	case bool:
+		return "TINYINT(1)"
+	case uint8, uint16, uint32, int, int8, int16, int32:
+		return "INT"
+	case uint64, int64:
+		return "BIGINT(20)"
+	case time.Time, *time.Time:
+		return "DATETIME"
+	case string, []byte:
+		return "CHAR(255)"
+	}
+	return "VARCHAR(255)"
 }

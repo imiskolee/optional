@@ -19,7 +19,7 @@ var __Float32 = optional_scanner.ScanBool
 
 // template type Optional(T,scan)
 
-//swagger:type float32
+//swagger:type T
 type Float32 optionalFloat32
 
 type optionalFloat32 []float32
@@ -280,4 +280,23 @@ func (c *Float32) Scan(input interface{}) (err error) {
 		*c = OfFloat32(val)
 	}
 	return
+}
+
+func (c Float32) GormDataType() string {
+	var t float32
+	var it interface{}
+	it = t
+	switch it.(type) {
+	case bool:
+		return "TINYINT(1)"
+	case uint8, uint16, uint32, int, int8, int16, int32:
+		return "INT"
+	case uint64, int64:
+		return "BIGINT(20)"
+	case time.Time, *time.Time:
+		return "DATETIME"
+	case string, []byte:
+		return "CHAR(255)"
+	}
+	return "VARCHAR(255)"
 }

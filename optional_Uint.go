@@ -19,7 +19,7 @@ var __Uint = optional_scanner.ScanBool
 
 // template type Optional(T,scan)
 
-//swagger:type uint
+//swagger:type T
 type Uint optionalUint
 
 type optionalUint []uint
@@ -280,4 +280,23 @@ func (c *Uint) Scan(input interface{}) (err error) {
 		*c = OfUint(val)
 	}
 	return
+}
+
+func (c Uint) GormDataType() string {
+	var t uint
+	var it interface{}
+	it = t
+	switch it.(type) {
+	case bool:
+		return "TINYINT(1)"
+	case uint8, uint16, uint32, int, int8, int16, int32:
+		return "INT"
+	case uint64, int64:
+		return "BIGINT(20)"
+	case time.Time, *time.Time:
+		return "DATETIME"
+	case string, []byte:
+		return "CHAR(255)"
+	}
+	return "VARCHAR(255)"
 }
